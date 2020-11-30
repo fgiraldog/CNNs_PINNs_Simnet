@@ -6,25 +6,27 @@ import time
 from matplotlib import rc
 rc('text', usetex=True)
 
+# function to properly plot the results
 def plot_contour(x_data, y_data, reshape):
 	not_geometry = reshape != 0
 	plt.contourf(x_data, y_data, reshape, levels = 50)
 	cb = plt.colorbar(format = '$%.2f$',pad = 0.02)
 	cb.ax.tick_params(labelsize=30)
 
-
+# function to test the results obtained
 def test(model,x_test,y_test,number = -1):
 
 	start_time = time.time()
 	model.eval()
 	out = model(x_test)
-	print((time.time() - start_time)/len(x_test))
+	print((time.time() - start_time)/len(x_test)) # time needed to use the model
 
-	random_number = number
+	random_number = number # selection of the benchmark
 
-	truth = y_test[random_number].cpu().detach().numpy()
-	pred = out[random_number].cpu().detach().numpy()
+	truth = y_test[random_number].cpu().detach().numpy() # ground truth [u-vel,v-vel,pressure]
+	pred = out[random_number].cpu().detach().numpy() # predicted results by the model [u-vel,v-vel,pressure]
 
+	# plots of the ground truth vs. predicted results
 	xp = np.linspace(-3,3,384)
 	yp = np.linspace(-1,1,128)
 
@@ -79,9 +81,11 @@ def test(model,x_test,y_test,number = -1):
 	plt.tight_layout()
 	plt.savefig('figure4.png',dpi=300, bbox_inches='tight')
 
-	print(np.sqrt(np.sum((truth[0] - pred[0])**2)/(384*128)))
-	print(np.sqrt(np.sum((truth[1] - pred[1])**2)/(384*128)))
-	print(np.sqrt(np.sum((truth[2] - pred[2])**2)/(384*128)))
+	# calculation of the RMSE for each field predicted 
+	print(np.sqrt(np.sum((truth[0] - pred[0])**2)/(384*128))) # u-velocity
+	print(np.sqrt(np.sum((truth[1] - pred[1])**2)/(384*128))) # v-velocity
+	print(np.sqrt(np.sum((truth[2] - pred[2])**2)/(384*128))) # pressure
 
+	# saving the results
 	with open('result_informed.pickle', 'wb') as f:
 		pickle.dump([truth,pred], f)
