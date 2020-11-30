@@ -12,24 +12,25 @@ from simnet.controller import SimNetController
 from simnet.architecture import FullyConnectedArch
 from simnet.optimizer import AdamOptimizerAnnealing
 
-# params for domain
+# parameters for domain
 inlet_vel = 0.0003
 channel_length = (-3, 3)
 channel_width = (-1, 1)
 
-# define channel
+# defines channel
 channel = Channel2D((channel_length[0], channel_width[0]),(channel_length[1], channel_width[1]))
 
-# define geometry
+# defines geometry
 geometry = Rectangle((-0.93, -0.3), (0.07, 0.7))
 geometry.rotate(0.1, (-0.93, -0.3))
 inside = channel - geometry
 inlet = Line((channel_length[0], channel_width[0]),(channel_length[0], channel_width[1]), -1)
 outlet = Line((channel_length[1], channel_width[0]),(channel_length[1], channel_width[1]), 1)
 
-# define sympy varaibles to parametize domain curves
+# defines sympy varaibles to parametize domain curves
 x, y = Symbol('x'), Symbol('y')
 
+# boundary conditions and training parameters
 class ssff_train(TrainDomain):
 	def __init__(self, **config):
 		super(ssff_train, self).__init__()
@@ -62,12 +63,14 @@ openfoam_var = csv_to_dict('openfoam/benchmark.csv', mapping)
 openfoam_invar_numpy = {key: value for key, value in openfoam_var.items() if key in ['x', 'y']}
 openfoam_outvar_numpy = {key: value for key, value in openfoam_var.items() if key in ['u', 'v', 'p']}
 
+# validation data definition
 class ssff_val(ValidationDomain):
 	def __init__(self, **config):
 	    super(ssff_val, self).__init__()
 	    val = Validation.from_numpy(openfoam_invar_numpy, openfoam_outvar_numpy)
 	    self.add(val, name='Val')
 
+# solver definition
 class ssff_solver(Solver):
 	train_domain = ssff_train
 	val_domain = ssff_val
@@ -76,10 +79,11 @@ class ssff_solver(Solver):
 	def __init__(self, **config):
 		super(ssff_solver, self).__init__(**config)
 
-		self.equations = NavierStokes(nu=1.588e-5, rho=1.205, dim=2, time=False).make_node()
+		self.equations = NavierStokes(nu=1.588e-5, rho=1.205, dim=2, time=False).make_node() # navier-stokes time indpendent
 		flow_net = self.arch.make_node(name='flow_net',inputs=['x', 'y'],outputs=['u', 'v', 'p'])
 		self.nets = [flow_net]
 
+	# architecture definition
 	@classmethod
 	def update_defaults(cls, defaults):
 		defaults.update({

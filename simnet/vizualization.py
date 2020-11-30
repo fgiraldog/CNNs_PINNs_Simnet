@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rc
 rc('text', usetex=True)
 
+# importing data
 data_pred = np.load('Val_pred.npz')
 data_true = np.load('Val_true.npz')
 
@@ -20,10 +21,11 @@ p_true = data_true['p']
 x_true = data_true['x']
 y_true = data_true['y']
 
+# scaling data for better visualization
 truth = [u_true*(10**5), v_true*(10**5), p_true*(10**5)]
 pred = [u_pred*(10**5), v_pred*(10**5), p_pred*(10**5)]
 
- 
+# function to properly plot data
 def plot_contour(x,y,attribute):
 	x_data = np.unique(x)
 	y_data = np.unique(y)
@@ -42,6 +44,7 @@ def plot_contour(x,y,attribute):
 	cb = plt.colorbar(format = '$%.2f$',pad = 0.02)
 	cb.ax.tick_params(labelsize=25)
 
+# plots
 xp = data_true['x']
 yp = data_true['y']
 
@@ -96,6 +99,7 @@ plt.subplots_adjust(hspace=0.39, wspace=0.11, bottom=0.08, left=0.05, right=0.97
 plt.tight_layout()
 plt.savefig('figure6.png',dpi=300, bbox_inches='tight')
 
-print(np.sqrt(np.sum((truth[0] - pred[0])**2)/(len(pred[0]))))
-print(np.sqrt(np.sum((truth[1] - pred[1])**2)/(len(pred[1]))))
-print(np.sqrt(np.sum((truth[2] - pred[2])**2)/(len(pred[2]))))
+# calculation of the RMSE for each field predicted 
+print(np.sqrt(np.sum((truth[0] - pred[0])**2)/(len(pred[0])))) # u-velocity
+print(np.sqrt(np.sum((truth[1] - pred[1])**2)/(len(pred[1])))) # v-velocity
+print(np.sqrt(np.sum((truth[2] - pred[2])**2)/(len(pred[2])))) # pressure
