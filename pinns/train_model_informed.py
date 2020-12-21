@@ -6,6 +6,7 @@ import copy
 def loss_func(model, tensors, channels_weights, batch_size):
 	
 	nu = 1.588E-5
+	rho = 1.205
 	x_train, y_train = tensors
 	out = model(x_train)
 
@@ -53,8 +54,8 @@ def loss_func(model, tensors, channels_weights, batch_size):
 
 	#calculation of residuals
 	cont = (u_x + v_y)
-	Re_x = (u*u_x) + (v*u_y) + p_x - (nu*(u_xx + u_yy))
-	Re_y = (u*v_x) + (v*v_y) + p_y - (nu*(v_xx + v_yy))
+	Re_x = rho*(u*u_x) + rho*(v*u_y) + p_x - (nu*(u_xx + u_yy))
+	Re_y = rho*(u*v_x) + rho*(v*v_y) + p_y - (nu*(v_xx + v_yy))
 
 	# weights of each residual for normalization
 	cont_weight = torch.sqrt(torch.mean(cont.reshape((out.shape[0]*128*384,1))**2, dim=0)).cuda()
