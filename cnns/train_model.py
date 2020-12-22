@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import copy
+import time
 
 # loss function 
 def loss_func(model, tensors,channels_weights):
@@ -46,6 +47,7 @@ def train(model, epochs, optimizer, train_dataset, val_dataset, channels_weights
 	val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
 	for epoch in range(0, epochs):
+		t = time.time()
 		print('Epoch: {}/{}'.format(epoch+1,epochs))
 
 		# training
@@ -69,6 +71,9 @@ def train(model, epochs, optimizer, train_dataset, val_dataset, channels_weights
 			best_model = copy.deepcopy(model)
 			print('Model saved')
 			print('\n')
+
+		print(time.time()-t)
+		print('\n')
 
 
 	return best_model
